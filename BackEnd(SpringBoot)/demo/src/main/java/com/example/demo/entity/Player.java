@@ -1,0 +1,65 @@
+package com.example.demo.entity;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Data
+@Table(name = "players")
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class Player {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
+    @Column(nullable = false)
+    private String name;@Column(nullable = false)
+    private String country;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private String runs;
+
+    @Column(nullable = false)
+    private String average;
+
+    @Column(nullable = false)
+    private String centuries;
+
+    @Column(name = "recent_form")
+    private String recentForm;
+
+    @Column(nullable = false)
+    private String position;
+
+    @Column(name = "batting_style")
+    private String battingStyle;
+
+    @Column(name = "bowling_style")
+    private String bowlingStyle;
+
+    @Column(name = "date_of_birth")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDateTime dateOfBirth;
+
+    @Column(name = "debut_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDateTime debutDate;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean active = true;
+
+    @Column(name = "created_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+
+}
