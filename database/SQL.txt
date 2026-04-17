@@ -1,0 +1,224 @@
+CREATE DATABASE IF NOT EXISTS cricket_db;
+USE cricket_db;
+
+-- Teams table
+CREATE TABLE IF NOT EXISTS teams (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    flag VARCHAR(10) NOT NULL,
+    full_name VARCHAR(200),
+    coach VARCHAR(100),
+    captain VARCHAR(100),
+    test_ranking INT DEFAULT 0,
+    odi_ranking INT DEFAULT 0,
+    t20_ranking INT DEFAULT 0,
+    test_points INT DEFAULT 0,
+    odi_points INT DEFAULT 0,
+    t20_points INT DEFAULT 0,
+    matches_played INT DEFAULT 0,
+    matches_won INT DEFAULT 0,
+    matches_lost INT DEFAULT 0,
+    matches_drawn INT DEFAULT 0,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Players table
+CREATE TABLE IF NOT EXISTS players (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    country VARCHAR(50) NOT NULL,
+    image VARCHAR(500),
+    date_of_birth DATE,
+    role VARCHAR(50),
+    total_runs INT DEFAULT 0,
+    batting_average DECIMAL(5,2) DEFAULT 0.0,
+    centuries INT DEFAULT 0,
+    half_centuries INT DEFAULT 0,
+    wickets INT DEFAULT 0,
+    bowling_average DECIMAL(5,2) DEFAULT 0.0,
+    economy_rate DECIMAL(4,2) DEFAULT 0.0,
+    recent_form VARCHAR(100),
+    test_runs INT DEFAULT 0,
+    odi_runs INT DEFAULT 0,
+    t20_runs INT DEFAULT 0,
+    test_average DECIMAL(5,2) DEFAULT 0.0,
+    odi_average DECIMAL(5,2) DEFAULT 0.0,
+    t20_average DECIMAL(5,2) DEFAULT 0.0,
+    active BOOLEAN DEFAULT TRUE,
+    featured BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Matches table
+CREATE TABLE IF NOT EXISTS matches (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    team1_name VARCHAR(100) NOT NULL,
+    team1_flag VARCHAR(10) NOT NULL,
+    team1_score VARCHAR(20),
+    team1_overs VARCHAR(10),
+    team1_run_rate VARCHAR(10),
+    team2_name VARCHAR(100) NOT NULL,
+    team2_flag VARCHAR(10) NOT NULL,
+    team2_score VARCHAR(20),
+    team2_overs VARCHAR(10),
+    team2_run_rate VARCHAR(10),
+    team2_target VARCHAR(10),
+    status VARCHAR(50) NOT NULL,
+    venue VARCHAR(200) NOT NULL,
+    format VARCHAR(20) NOT NULL,
+    series VARCHAR(200) NOT NULL,
+    current_bowler VARCHAR(100),
+    required_rate VARCHAR(10),
+    match_type VARCHAR(20),
+    match_date_time TIMESTAMP NOT NULL,
+    match_status ENUM('LIVE', 'COMPLETED', 'UPCOMING', 'CANCELLED') DEFAULT 'UPCOMING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Match current batsmen table
+CREATE TABLE IF NOT EXISTS match_current_batsmen (
+    match_id BIGINT,
+    batsman VARCHAR(100),
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
+);
+
+-- News articles table
+CREATE TABLE IF NOT EXISTS news_articles (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    summary VARCHAR(1000),
+    content TEXT,
+    image VARCHAR(500),
+    category VARCHAR(100) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    published_at TIMESTAMP NOT NULL,
+    read_time VARCHAR(20),
+    views INT DEFAULT 0,
+    comments INT DEFAULT 0,
+    featured BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tournaments table
+CREATE TABLE IF NOT EXISTS tournaments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    location VARCHAR(200) NOT NULL,
+    teams INT NOT NULL,
+    format VARCHAR(20),
+    organizer VARCHAR(100),
+    winner VARCHAR(100),
+    runner_up VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_matches_status ON matches(match_status);
+CREATE INDEX idx_matches_date ON matches(match_date_time);
+CREATE INDEX idx_matches_format ON matches(format);
+CREATE INDEX idx_news_category ON news_articles(category);
+CREATE INDEX idx_news_published ON news_articles(published_at);
+CREATE INDEX idx_news_featured ON news_articles(featured);
+CREATE INDEX idx_players_country ON players(country);
+CREATE INDEX idx_players_featured ON players(featured);
+CREATE INDEX idx_teams_ranking ON teams(test_ranking, odi_ranking, t20_ranking);
+CREATE INDEX idx_tournaments_status ON tournaments(status);
+CREATE INDEX idx_tournaments_date ON tournaments(start_date);
+
+-- Sample Data for Cricket Database
+
+-- Insert Teams
+INSERT INTO teams (name, flag, full_name, coach, captain, test_ranking, odi_ranking, t20_ranking, test_points, odi_points, t20_points, matches_played, matches_won, matches_lost, matches_drawn) VALUES
+('India', '🇮🇳', 'India National Cricket Team', 'Rahul Dravid', 'Rohit Sharma', 1, 1, 1, 116, 125, 268, 150, 95, 45, 10),
+('Australia', '🇦🇺', 'Australia National Cricket Team', 'Andrew McDonald', 'Pat Cummins', 2, 3, 4, 111, 105, 175, 145, 88, 52, 5),
+('England', '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'England Cricket Team', 'Brendon McCullum', 'Ben Stokes', 3, 4, 2, 105, 98, 242, 140, 82, 53, 5),
+('Pakistan', '🇵🇰', 'Pakistan National Cricket Team', 'Gary Kirsten', 'Babar Azam', 5, 6, 3, 85, 87, 189, 135, 75, 55, 5),
+('South Africa', '🇿🇦', 'South Africa National Cricket Team', 'Rob Walter', 'Temba Bavuma', 4, 5, 5, 92, 91, 156, 130, 78, 48, 4),
+('New Zealand', '🇳🇿', 'New Zealand Cricket Team', 'Gary Stead', 'Kane Williamson', 6, 2, 6, 78, 108, 145, 125, 72, 48, 5),
+('West Indies', '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'West Indies Cricket Team', 'Daren Sammy', 'Shai Hope', 8, 9, 7, 65, 68, 134, 120, 58, 58, 4),
+('Bangladesh', '🇧🇩', 'Bangladesh National Cricket Team', 'Chandika Hathurusingha', 'Najmul Hossain', 9, 7, 9, 58, 78, 98, 115, 52, 58, 5),
+('Sri Lanka', '🇱🇰', 'Sri Lanka National Cricket Team', 'Chris Silverwood', 'Dhananjaya de Silva', 7, 8, 8, 72, 72, 112, 118, 55, 58, 5),
+('Afghanistan', '🇦🇫', 'Afghanistan National Cricket Team', 'Jonathan Trott', 'Hashmatullah Shahidi', 10, 10, 10, 45, 58, 89, 85, 38, 42, 5);
+
+-- Insert Players
+INSERT INTO players (name, country, image, role, total_runs, batting_average, centuries, half_centuries, wickets, bowling_average, economy_rate, recent_form, test_runs, odi_runs, t20_runs, test_average, odi_average, t20_average, featured) VALUES
+('Virat Kohli', 'India', '/placeholder.svg?height=80&width=80&text=VK', 'Batsman', 12344, 58.07, 43, 65, 4, 52.25, 6.15, '89*, 76, 45, 112*', 8848, 13906, 4008, 58.18, 58.18, 52.73, TRUE),
+('Babar Azam', 'Pakistan', '/placeholder.svg?height=80&width=80&text=BA', 'Batsman', 8567, 56.83, 31, 42, 0, 0.0, 0.0, '67, 34, 89, 23', 3359, 5729, 3485, 45.75, 59.17, 41.54, TRUE),
+('Joe Root', 'England', '/placeholder.svg?height=80&width=80&text=JR', 'Batsman', 11234, 49.23, 29, 58, 3, 45.67, 4.85, '45, 78, 156, 67', 11662, 6109, 893, 50.61, 47.33, 35.72, TRUE),
+('Steve Smith', 'Australia', '/placeholder.svg?height=80&width=80&text=SS', 'Batsman', 9685, 60.73, 32, 38, 17, 54.85, 4.56, '91, 23, 67, 145', 9685, 4378, 1063, 60.73, 43.34, 28.26, TRUE),
+('Kane Williamson', 'New Zealand', '/placeholder.svg?height=80&width=80&text=KW', 'Batsman', 8743, 54.31, 32, 33, 0, 0.0, 0.0, '78, 45, 23, 89', 8743, 6173, 2107, 54.31, 47.48, 33.01, TRUE),
+('Rohit Sharma', 'India', '/placeholder.svg?height=80&width=80&text=RS', 'Batsman', 10865, 46.86, 31, 48, 8, 37.25, 5.28, '56, 89, 34, 78', 4301, 10709, 4231, 46.86, 48.63, 31.32, TRUE),
+('David Warner', 'Australia', '/placeholder.svg?height=80&width=80&text=DW', 'Batsman', 8786, 44.59, 26, 33, 0, 0.0, 0.0, '45, 67, 23, 91', 5786, 6932, 3277, 44.59, 44.96, 33.43, FALSE),
+('Quinton de Kock', 'South Africa', '/placeholder.svg?height=80&width=80&text=QK', 'Wicket-keeper', 6543, 38.82, 15, 32, 0, 0.0, 0.0, '34, 78, 56, 45', 3300, 6405, 2458, 38.82, 44.71, 31.18, FALSE);
+
+-- Insert Live Matches
+INSERT INTO matches (team1_name, team1_flag, team1_score, team1_overs, team1_run_rate, team2_name, team2_flag, team2_score, team2_overs, team2_run_rate, team2_target, status, venue, format, series, current_bowler, required_rate, match_type, match_date_time, match_status) VALUES
+('India', '🇮🇳', '287/4', '45.2', '6.32', 'Australia', '🇦🇺', '156/8', '32.1', '4.87', '288', 'LIVE - 2nd Innings', 'Melbourne Cricket Ground', 'ODI', 'India tour of Australia 2024', 'Pat Cummins', '8.45', 'live', NOW(), 'LIVE'),
+('England', '🏴󠁧󠁢󠁥󠁮󠁧󠁿', '178/6', '18.4', '9.53', 'Pakistan', '🇵🇰', '145/9', '20.0', '7.25', '179', 'England won by 33 runs', 'Lords Cricket Ground', 'T20I', 'Pakistan tour of England 2024', NULL, NULL, 'completed', DATE_SUB(NOW(), INTERVAL 2 HOURS), 'COMPLETED');
+
+-- Insert current batsmen for live match
+INSERT INTO match_current_batsmen (match_id, batsman) VALUES
+(1, 'Virat Kohli 89*'),
+(1, 'KL Rahul 45*');
+
+-- Insert Recent Matches
+INSERT INTO matches (team1_name, team1_flag, team1_score, team1_overs, team2_name, team2_flag, team2_score, team2_overs, status, venue, format, match_date_time, match_status) VALUES
+('South Africa', '🇿🇦', '342/5', '50.0', 'New Zealand', '🇳🇿', '298/8', '50.0', 'South Africa won by 44 runs', 'Cape Town', 'ODI', DATE_SUB(NOW(), INTERVAL 1 DAY), 'COMPLETED'),
+('West Indies', '🏴󠁧󠁢󠁥󠁮󠁧󠁿', '156/7', '20.0', 'Bangladesh', '🇧🇩', '159/4', '18.3', 'Bangladesh won by 6 wickets', 'Bridgetown', 'T20I', DATE_SUB(NOW(), INTERVAL 2 DAY), 'COMPLETED');
+
+-- Insert Upcoming Matches
+INSERT INTO matches (team1_name, team1_flag, team2_name, team2_flag, status, venue, format, series, match_date_time, match_status) VALUES
+('Sri Lanka', '🇱🇰', 'Afghanistan', '🇦🇫', 'Upcoming', 'Colombo', 'Test', 'Afghanistan tour of Sri Lanka', DATE_ADD(NOW(), INTERVAL 1 DAY), 'UPCOMING'),
+('Ireland', '🇮🇪', 'Zimbabwe', '🇿🇼', 'Upcoming', 'Dublin', 'ODI', 'Zimbabwe tour of Ireland', DATE_ADD(NOW(), INTERVAL 3 DAY), 'UPCOMING');
+
+-- Insert News Articles
+INSERT INTO news_articles (title, summary, content, image, category, author, published_at, read_time, views, comments, featured) VALUES
+('Kohlis masterclass guides India to commanding position against Australia', 'The former captains unbeaten 89 puts India in drivers seat in the third ODI at Melbourne', 'In a masterful display of batting prowess, Virat Kohli once again proved why he is considered one of the greatest batsmen of all time...', '/placeholder.svg?height=400&width=600&text=Kohli+Batting', 'Match Report', 'Cricbuzz Staff', DATE_SUB(NOW(), INTERVAL 2 HOUR), '4 min read', 12500, 89, TRUE),
+('ICC announces new playing conditions for T20 World Cup 2024', 'Several changes including powerplay modifications and DRS updates to be implemented', 'The International Cricket Council has announced several revolutionary changes to the playing conditions...', '/placeholder.svg?height=300&width=400&text=ICC+Announcement', 'Cricket News', 'ICC Media', DATE_SUB(NOW(), INTERVAL 4 HOUR), '3 min read', 8200, 45, FALSE),
+('Babar Azam steps down as Pakistan captain across all formats', 'The star batsman cites workload management and teams future as key factors in decision', 'In a shocking turn of events, Babar Azam has announced his decision to step down as Pakistan captain...', '/placeholder.svg?height=300&width=400&text=Babar+Azam', 'Breaking News', 'ESPNCricinfo Staff', DATE_SUB(NOW(), INTERVAL 48 HOUR), '5 min read', 15700, 156, TRUE),
+('Young Indian pace sensation takes 5-wicket haul on debut', '19-year-old fast bowler creates history with stunning figures in county championship', 'A new star has emerged in Indian cricket as young pace bowler...', '/placeholder.svg?height=300&width=400&text=Young+Pacer', 'Domestic Cricket', 'County Cricket Correspondent', DATE_SUB(NOW(), INTERVAL 8 HOUR), '3 min read', 5400, 23, True),
+('Womens cricket reaches new heights with record attendance', 'Latest series between Australia and England draws unprecedented crowds worldwide', 'The womens cricket revolution continues to gain momentum...', '/placeholder.svg?height=300&width=400&text=Women+Cricket', 'Womens Cricket', 'Sarah Mitchell', DATE_SUB(NOW(), INTERVAL 12 HOUR), '4 min read', 7800, 67, FALSE),
+('IPL 2024 auction strategies: How franchises are building for the future', 'Detailed analysis of team compositions and strategic picks ahead of the new season', 'As the IPL 2024 auction approaches, franchises are busy finalizing their strategies...', '/placeholder.svg?height=300&width=400&text=IPL+Auction', 'IPL', 'Harsha Bhogle', DATE_SUB(NOW(), INTERVAL 1 DAY), '6 min read', 22100, 234, TRUE);
+
+-- Insert Tournaments
+INSERT INTO tournaments (name, status, start_date, end_date, location, teams, format, organizer) VALUES
+('ICC Mens T20 World Cup 2024', 'Upcoming', '2024-06-01', '2024-06-29', 'USA & West Indies', 20, 'T20I', 'ICC'),
+('Indian Premier League 2024', 'Live', '2024-03-22', '2024-05-26', 'India', 10, 'T20I', 'BCCI'),
+('The Ashes 2025', 'Upcoming', '2025-11-21', '2026-01-07', 'Australia', 2, 'Test', 'Cricket Australia'),
+('ICC Cricket World Cup 2027', 'Upcoming', '2027-10-01', '2027-11-19', 'South Africa, Zimbabwe, Namibia', 14, 'ODI', 'ICC'),
+('Asia Cup 2024', 'Completed', '2024-08-30', '2024-09-17', 'Sri Lanka', 6, 'ODI', 'ACC');
+
+INSERT INTO matches (
+  team1_name, team1_flag, team1_score, team1_overs, team1_run_rate,
+  team2_name, team2_flag, team2_score, team2_overs, team2_run_rate,
+  team2_target, status, venue, format, series,
+  current_bowler, required_rate, match_type, match_date_time, match_status
+)
+VALUES
+(
+  'India', '🇮🇳', '287/4', '45.2', '6.32',
+  'Australia', '🇦🇺', '156/8', '32.1', '4.87',
+  '288', 'LIVE - 2nd Innings', 'Melbourne Cricket Ground', 'ODI', 'India tour of Australia 2024',
+  'Pat Cummins', '8.45', 'live', NOW(), 'LIVE'
+),
+(
+  'England', '🏴', '178/6', '18.4', '9.53',
+  'Pakistan', '🇵🇰', '145/9', '20.0', '7.25',
+  '179', 'England won by 33 runs', 'Lords Cricket Ground', 'T20I', 'Pakistan tour of England 2024',
+  NULL, NULL, 'completed', (SELECT DATE_SUB(NOW(), INTERVAL 2 HOUR)), 'COMPLETED'
+);
+
+INSERT INTO matches 
+(team1_name, team1_flag, team1_score, team1_overs, team2_name, team2_flag, team2_score, team2_overs, status, venue, format, series, match_date_time, match_status) 
+VALUES
+('South Africa', '🇿🇦', '342/5', '50.0', 'New Zealand', '🇳🇿', '298/8', '50.0', 'South Africa won by 44 runs', 'Cape Town', 'ODI', 'New Zealand tour of South Africa 2024', DATE_SUB(NOW(), INTERVAL 1 DAY), 'COMPLETED'),
+('West Indies', '🏴', '156/7', '20.0', 'Bangladesh', '🇧🇩', '159/4', '18.3', 'Bangladesh won by 6 wickets', 'Bridgetown', 'T20I', 'Bangladesh tour of West Indies 2024', DATE_SUB(NOW(), INTERVAL 2 DAY), 'COMPLETED');
