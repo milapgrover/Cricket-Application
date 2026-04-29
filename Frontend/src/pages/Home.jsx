@@ -18,38 +18,48 @@ export default function Home() {
   const [tournaments, setTournaments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  useEffect(()=>{
-     async function loadData() {
-      try{
-        setLoading(true)
-        setError(null)
+ useEffect(()=>{
+  let isMounted = true;
 
-        const live = await fetchLiveMatches()
-        setLiveMatches(live)
+  async function loadData() {
+    try{
+      setError(null)
 
-         const recent = await fetchRecentMatches()
-         setRecentMatches(recent) 
+      const live = await fetchLiveMatches()
+      if(isMounted) setLiveMatches(live)
 
-         const news = await fetchFeaturedNews()
-         setFeaturedNews(news) 
+      const recent = await fetchRecentMatches()
+      if(isMounted) setRecentMatches(recent) 
 
-         const players = await fetchPlayerSpotlight()
-         setPlayerSpotlight(players) 
+      const news = await fetchFeaturedNews()
+      if(isMounted) setFeaturedNews(news) 
 
-         const tourns = await fetchTournaments()
-         setTournaments(tourns)
-      }
-      catch(err)
-      {
-        setError("Failed to load data. Please check your connection.")
-      }
-      finally{
-        setLoading(false)
-      }
-     }
-     loadData()
-  },[])
- 
+      const players = await fetchPlayerSpotlight()
+      if(isMounted) setPlayerSpotlight(players) 
+
+      const tourns = await fetchTournaments()
+      if(isMounted) setTournaments(tourns)
+    }
+    catch(err)
+    {
+      setError("Failed to load data. Please check your connection.")
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
+  loadData()
+
+  const interval = setInterval(()=>{
+    loadData()
+  },5000)   
+
+  return ()=>{
+    isMounted = false
+    clearInterval(interval)
+  }
+},[])
 
 
   return (

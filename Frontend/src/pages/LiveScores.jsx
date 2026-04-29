@@ -12,34 +12,58 @@ export default function LiveScoresPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   
-  const loadData = async () => {
-    try {
-      setLoading(true)
-
-      const live = await fetchLiveMatches()
-      console.log("LIVE MATCHES:", live)
-      setLiveMatches(live)
-
-      const upcoming = await fetchUpcomingMatches()
-      setUpcomingMatches(upcoming)
-
-      const recent = await fetchRecentMatches()
-      setRecentMatches(recent)
-    } catch (error) {
-      console.error("This is causing Error", error)
-    } finally {
-      setLoading(false)
-    }
-  }
   useEffect(() => {
-    loadData()
-  }, [])
+  let isMounted = true;
 
-   const handleRefresh = async () => {
-    setRefreshing(true)
-    await loadData()
-    setRefreshing(false)
+  const loadDataSafe = async () => {
+    try {
+      setLoading(true);
+
+      const live = await fetchLiveMatches();
+      if (isMounted) setLiveMatches(live);
+
+      const upcoming = await fetchUpcomingMatches();
+      if (isMounted) setUpcomingMatches(upcoming);
+
+      const recent = await fetchRecentMatches();
+      if (isMounted) setRecentMatches(recent);
+
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      if (isMounted) setLoading(false);
+    }
+  };
+
+  loadDataSafe(); 
+
+  const interval = setInterval(() => {
+    loadDataSafe(); 
+  }, 5000);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+  };
+}, []);
+
+ const handleRefresh = async () => {
+  setRefreshing(true);
+  try {
+    const live = await fetchLiveMatches();
+    setLiveMatches(live);
+
+    const upcoming = await fetchUpcomingMatches();
+    setUpcomingMatches(upcoming);
+
+    const recent = await fetchRecentMatches();
+    setRecentMatches(recent);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRefreshing(false);
   }
+};
   
   return (
     <>

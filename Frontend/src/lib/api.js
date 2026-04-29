@@ -1,5 +1,5 @@
- const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8081/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://cricket-application.onrender.com/api";
 export async function fetchLiveMatches() {
   try {
     const response = await fetch(`${API_BASE_URL}/matches/live`, {
